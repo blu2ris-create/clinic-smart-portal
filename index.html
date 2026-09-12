@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة المراجع الذكية - تجمع الأحساء الصحي</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #0b0f19; color: white; font-family: 'Cairo', sans-serif; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 20px; }
+        
+        .main-card { background: #151c2c; border: 2px solid #2a344d; border-radius: 20px; padding: 30px; text-align: center; max-width: 550px; width: 100%; box-shadow: 0 15px 35px rgba(0,0,0,0.6); margin-top: auto; margin-bottom: auto; }
+        .cluster-logo { height: 90px; width: auto; object-fit: contain; margin-bottom: 20px; }
+        
+        .info-box { background: #111827; border: 1px solid #1f2937; border-radius: 15px; padding: 20px; margin-top: 20px; text-align: right; }
+        .info-item { margin-bottom: 12px; font-size: 1.05rem; }
+        .info-label { color: #38bdf8; font-weight: bold; }
+        .info-value { color: #f3f4f6; }
+
+        .btn-custom { font-size: 1.1rem; padding: 12px; width: 100%; border-radius: 12px; font-weight: bold; margin-top: 15px; transition: 0.3s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+        
+        .btn-sehati { background-color: #0d9488; border: none; color: white; }
+        .btn-sehati:hover { background-color: #0f766e; color: white; }
+
+        #loadingScreen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; background: #0b0f19; z-index: 9999; text-align: center; padding: 20px; }
+        .spinner-border { width: 3rem; height: 3rem; color: #ffc107; margin-bottom: 20px; }
+        
+        .alert-gps { background: #1f2937; border: 1px solid #374151; color: #ffc107; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+
+    <!-- شاشة التححديد التلقائي للموقع -->
+    <div id="loadingScreen">
+        <div class="spinner-border" role="status"></div>
+        <h4 class="text-warning fw-bold mb-2">جاري تحديد موقع المركز الصحي...</h4>
+        <p class="text-muted small">يرجى السماح بخدمة الموقع (GPS) لربط الباركود ببيانات المركز الذي تقف عنده</p>
+        <div id="gpsErrorBox" style="display: none; max-width: 400px;" class="mt-3">
+            <div class="alert-gps">
+                ⚠️ تعذر تحديد الموقع تلقائياً. يمكنك اختيار المركز الصحي يدوياً من القائمة أدناه:
+            </div>
+            <select id="manualSelect" class="form-select bg-dark text-white border-secondary mb-2" onchange="selectManualClinic(this.value)">
+                <option value="">-- اختر المركز الصحي يدوياً --</option>
+            </select>
+            <button class="btn btn-warning btn-sm fw-bold w-100" onclick="retryLocation()">إعادة محاولة تحديد الموقع 🔄</button>
+        </div>
+    </div>
+
+    <!-- واجهة البيانات للمركز المحدد -->
+    <div class="main-card" id="appContent" style="display: none;">
+        <img src="https://github.com/blu2ris-create/clinic-queue-system/blob/main/logo.png%20(2).png?raw=true" alt="شعار التجمع الصحي" class="cluster-logo">
+        
+        <h3 id="clinicNameTitle" class="text-warning fw-bold mb-1">--</h3>
+        <p class="text-muted small mb-4">تجمع الأحساء الصحي - الرعاية الصحية الأولية</p>
+
+        <div class="info-box">
+            <div class="info-item">
+                <span class="info-label">🏥 القطاع:</span>
+                <span id="clinicSector" class="info-value">--</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">🕒 أوقات العمل:</span>
+                <span id="clinicHours" class="info-value">الأحد - الخميس: 08:00 ص - 11:00 م</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">📞 الهاتف / التواصل:</span>
+                <span id="clinicPhone" class="info-value">0135000000</span>
+            </div>
+        </div>
+
+        <!-- زر حجز موعد عبر تطبيق صحتي -->
+        <a href="https://sehaty.sa" target="_blank" class="btn btn-sehati btn-custom">
+            📅 حجز موعد عبر تطبيق صحتي
+        </a>
+
+        <!-- زر الاتجاهات -->
+        <button class="btn btn-warning btn-custom text-dark" onclick="openGoogleMaps()">
+            📍 الاتجاهات عبر خرائط جوجل
+        </button>
+        
+        <button class="btn btn-outline-info btn-custom" onclick="window.location.reload()">
+            🔄 إعادة تحديد الموقع
+        </button>
+    </div>
+
+    <footer class="text-muted small text-center mt-3">
+        جميع الحقوق محفوظة © تجمع الأحساء الصحي 2026
+    </footer>
+
+    <script>
+        // قاعدة البيانات الشاملة المحدثة لجميع مراكز الأحساء مقسمة حسب القطاعات
+        const healthCenters = [
+            // القطاع الأوسط
+            { id: "fadiliyah", name: "مركز صحي الفاضلية", sector: "القطاع الأوسط", lat: 25.3850, lng: 49.5820 },
+            { id: "mazrou", name: "مركز صحي المزروع", sector: "القطاع الأوسط", lat: 25.3900, lng: 49.5850 },
+            { id: "hazm_mubarraz", name: "مركز صحي حزم المبرز", sector: "القطاع الأوسط", lat: 25.4000, lng: 49.5750 },
+            { id: "yahya", name: "مركز صحي اليحيى", sector: "القطاع الأوسط", lat: 25.3800, lng: 49.5900 },
+            { id: "salihiyah", name: "مركز صحي الصالحية", sector: "القطاع الأوسط", lat: 25.3851, lng: 49.5822 },
+            { id: "king_fahd", name: "مركز صحي حي الملك فهد", sector: "القطاع الأوسط", lat: 25.3700, lng: 49.6000 },
+            { id: "jafari", name: "مركز صحي الجعفري", sector: "القطاع الأوسط", lat: 25.3750, lng: 49.5950 },
+            { id: "sih", name: "مركز صحي السيح", sector: "القطاع الأوسط", lat: 25.3650, lng: 49.6050 },
+            { id: "faisaliyah", name: "مركز صحي الفيصلية", sector: "القطاع الأوسط", lat: 25.3950, lng: 49.5600 },
+
+            // القطاع الشمالي
+            { id: "mutairifi", name: "مركز صحي المطيرفي", sector: "القطاع الشمالي", lat: 25.4500, lng: 49.6300 },
+            { id: "shuqaiq", name: "مركز صحي الشقيق", sector: "القطاع الشمالي", lat: 25.4800, lng: 49.6100 },
+            { id: "nozha", name: "مركز صحي النزهة", sector: "القطاع الشمالي", lat: 25.4200, lng: 49.5800 },
+            { id: "mahasin", name: "مركز صحي محاسن", sector: "القطاع الشمالي", lat: 25.4250, lng: 49.5650 },
+            { id: "shubat_mubarraz", name: "مركز شعبة المبرز", sector: "القطاع الشمالي", lat: 25.4150, lng: 49.5750 },
+            { id: "julaijilah", name: "مركز صحي جليجلة", sector: "القطاع الشمالي", lat: 25.5000, lng: 49.6200 },
+            { id: "marah", name: "مركز صحي المراح", sector: "القطاع الشمالي", lat: 25.5200, lng: 49.6000 },
+            { id: "shobah", name: "مركز صحي الشعبة", sector: "القطاع الشمالي", lat: 25.4300, lng: 49.5900 },
+            { id: "qadisiya", name: "مركز القادسية الصحي", sector: "القطاع الشمالي", lat: 25.4350, lng: 49.5850 },
+            { id: "uyoun", name: "مركز صحي العيون", sector: "القطاع الشمالي", lat: 25.6531, lng: 49.5915 },
+            { id: "qurain", name: "مركز صحي القرين", sector: "القطاع الشمالي", lat: 25.5800, lng: 49.5900 },
+            { id: "jarn", name: "مركز صحي الجرن", sector: "القطاع الشمالي", lat: 25.6000, lng: 49.5850 },
+            { id: "wuziyah", name: "مركز صحي الوزية", sector: "القطاع الشمالي", lat: 25.5500, lng: 49.5700 },
+            { id: "faisal", name: "مركز صحي الفيصل", sector: "القطاع الشمالي", lat: 25.4100, lng: 49.5900 }, // المحدث (الخرس الشمالي سابقاً)
+            { id: "rashidiyah", name: "مركز الراشدية الصحي", sector: "القطاع الشمالي", lat: 25.4400, lng: 49.5750 },
+            { id: "noura_mousa", name: "مركز صحي نورة الموسى", sector: "القطاع الشمالي", lat: 25.4150, lng: 49.5650 },
+
+            // القطاع الشرقي
+            { id: "qarah", name: "مركز صحي القارة", sector: "القطاع الشرقي", lat: 25.4050, lng: 49.6750 },
+            { id: "kalabiya", name: "مركز صحي الكلابية", sector: "القطاع الشرقي", lat: 25.4450, lng: 49.6600 },
+            { id: "tarof", name: "مركز صحي الطرف", sector: "القطاع الشرقي", lat: 25.3350, lng: 49.7450 },
+            { id: "jashah", name: "مركز صحي الجشة", sector: "القطاع الشرقي", lat: 25.3500, lng: 49.7300 },
+            { id: "mansourah", name: "مركز صحي المنصورة", sector: "القطاع الشرقي", lat: 25.3600, lng: 49.6900 },
+            { id: "hulailah", name: "مركز صحي الحليلة", sector: "القطاع الشرقي", lat: 25.3800, lng: 49.6800 },
+            { id: "dalwah", name: "مركز صحي الدالوة", sector: "القطاع الشرقي", lat: 25.3700, lng: 49.6850 },
+            { id: "munizilah", name: "مركز صحي المنيزلة", sector: "القطاع الشرقي", lat: 25.3450, lng: 49.7100 },
+            { id: "battaliyah", name: "مركز صحي البطالية", sector: "القطاع الشرقي", lat: 25.4300, lng: 49.6050 },
+            { id: "jafer", name: "مركز صحي الجفر", sector: "القطاع الشرقي", lat: 25.3500, lng: 49.7700 },
+            { id: "jubail", name: "مركز صحي الجبيل", sector: "القطاع الشرقي", lat: 25.3300, lng: 49.7550 },
+            { id: "iskan_kalabiya", name: "مركز صحي إسكان الكلابية", sector: "القطاع الشرقي", lat: 25.4500, lng: 49.6500 },
+            { id: "fadool", name: "مركز صحي الفضول", sector: "القطاع الشرقي", lat: 25.3900, lng: 49.6600 },
+            { id: "tuwaithir", name: "مركز صحي التويثير", sector: "القطاع الشرقي", lat: 25.3200, lng: 49.7400 },
+            { id: "markaz_east", name: "مركز صحي المركز", sector: "القطاع الشرقي", lat: 25.3400, lng: 49.7200 },
+            { id: "omran", name: "مركز صحي العمران", sector: "القطاع الشرقي", lat: 25.3582, lng: 49.7214 },
+
+            // القطاع الجنوبي
+            { id: "thulaithiyah", name: "مركز صحي الثليثية", sector: "القطاع الجنوبي", lat: 25.3000, lng: 49.5500 },
+            { id: "shujah", name: "مركز صحي شجعة", sector: "القطاع الجنوبي", lat: 25.2800, lng: 49.5300 },
+            { id: "dahoo", name: "مركز صحي الدهو", sector: "القطاع الجنوبي", lat: 25.2600, lng: 49.5000 },
+            { id: "muraitebah", name: "مركز صحي مريطبة", sector: "القطاع الجنوبي", lat: 25.2500, lng: 49.4800 },
+            { id: "fudailah", name: "مركز صحي فضيلة", sector: "القطاع الجنوبي", lat: 25.2400, lng: 49.4600 },
+            { id: "aziziyah", name: "مركز صحي العزيزية", sector: "القطاع الجنوبي", lat: 25.3100, lng: 49.5600 },
+            { id: "ghuwaibah", name: "مركز صحي غويبة", sector: "القطاع الجنوبي", lat: 25.2000, lng: 49.4000 },
+            { id: "khalidiyah", name: "مركز صحي الخالدية", sector: "القطاع الجنوبي", lat: 25.3200, lng: 49.5700 },
+            { id: "sulaimaniyah", name: "مركز صحي السلمانية", sector: "القطاع الجنوبي", lat: 25.3300, lng: 49.5800 },
+            { id: "muallimin", name: "مركز صحي المعلمين", sector: "القطاع الجنوبي", lat: 25.3400, lng: 49.5900 },
+            { id: "zayadiyah", name: "مركز صحي الزايدية", sector: "القطاع الجنوبي", lat: 25.2200, lng: 49.4200 },
+            { id: "bandariyah", name: "مركز صحي البندرية", sector: "القطاع الجنوبي", lat: 25.3500, lng: 49.6000 },
+            { id: "ruqaybah", name: "مركز صحي الرقيقة", sector: "القطاع الجنوبي", lat: 25.3600, lng: 49.5500 },
+            { id: "haradh", name: "مركز صحي حرض", sector: "القطاع الجنوبي", lat: 24.1400, lng: 49.0600 }
+        ];
+
+        // إضافة خرائط جوجل افتراضية إحداثية لكل مركز تلقائياً إذا لم تكن مضافة
+        healthCenters.forEach(c => {
+            c.mapsUrl = `https://maps.google.com/?q=${c.lat},${c.lng}`;
+        });
+
+        let currentActiveCenter = null;
+
+        function populateManualSelect() {
+            const select = document.getElementById('manualSelect');
+            select.innerHTML = '<option value="">-- اختر المركز الصحي يدوياً --</option>';
+            healthCenters.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+            healthCenters.forEach(center => {
+                let opt = document.createElement('option');
+                opt.value = center.id;
+                opt.innerText = center.name + " (" + center.sector + ")";
+                select.appendChild(opt);
+            });
+        }
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3;
+            const φ1 = lat1 * Math.PI/180;
+            const φ2 = lat2 * Math.PI/180;
+            const Δφ = (lat2-lat1) * Math.PI/180;
+            const Δλ = (lon2-lon1) * Math.PI/180;
+
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                      Math.cos(φ1) * Math.cos(φ2) *
+                      Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+            return R * c;
+        }
+
+        function initLocationCheck() {
+            populateManualSelect();
+            if (!navigator.geolocation) {
+                showGpsError();
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+                    findClosestCenter(userLat, userLng);
+                },
+                (error) => {
+                    showGpsError();
+                },
+                { timeout: 10000, enableHighAccuracy: true }
+            );
+        }
+
+        function findClosestCenter(userLat, userLng) {
+            let closest = null;
+            let minDistance = Infinity;
+
+            healthCenters.forEach(center => {
+                let dist = calculateDistance(userLat, userLng, center.lat, center.lng);
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    closest = center;
+                }
+            });
+
+            if (closest) {
+                displayCenterInfo(closest);
+            } else {
+                showGpsError();
+            }
+        }
+
+        function displayCenterInfo(center) {
+            currentActiveCenter = center;
+            document.getElementById('clinicNameTitle').innerText = center.name;
+            document.getElementById('clinicSector').innerText = center.sector;
+
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('appContent').style.display = 'block';
+        }
+
+        function showGpsError() {
+            document.querySelector('.spinner-border').style.display = 'none';
+            document.querySelector('#loadingScreen h4').innerText = "تنبيه خدمة الموقع (GPS)";
+            document.getElementById('gpsErrorBox').style.display = 'block';
+        }
+
+        function retryLocation() {
+            document.getElementById('gpsErrorBox').style.display = 'none';
+            document.querySelector('.spinner-border').style.display = 'block';
+            document.querySelector('#loadingScreen h4').innerText = "جاري إعادة محاولة تحديد الموقع...";
+            initLocationCheck();
+        }
+
+        function selectManualClinic(centerId) {
+            if (!centerId) return;
+            const found = healthCenters.find(c => c.id === centerId);
+            if (found) {
+                displayCenterInfo(found);
+            }
+        }
+
+        function openGoogleMaps() {
+            if (currentActiveCenter && currentActiveCenter.mapsUrl) {
+                window.location.href = currentActiveCenter.mapsUrl;
+            }
+        }
+
+        window.onload = function() {
+            setTimeout(initLocationCheck, 500);
+        };
+    </script>
+</body>
+</html>
