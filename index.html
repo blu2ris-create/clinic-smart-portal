@@ -26,7 +26,7 @@
         #loadingScreen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; background: #0b0f19; z-index: 9999; text-align: center; padding: 20px; }
         .spinner-border { width: 3rem; height: 3rem; color: #ffc107; margin-bottom: 20px; }
         
-        .alert-error { background: #451a03; border: 1px solid #b45309; color: #fde68a; padding: 20px; border-radius: 15px; margin-bottom: 15px; font-size: 1.05rem; text-align: center; line-height: 1.6; }
+        .alert-error { background: #451a03; border: 1px solid #b45309; color: #fde68a; padding: 15px; border-radius: 15px; margin-bottom: 15px; font-size: 0.95rem; text-align: center; line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -34,16 +34,17 @@
     <!-- شاشة التحميل وتحديد الموقع -->
     <div id="loadingScreen">
         <div class="spinner-border" role="status" id="loadingSpinner"></div>
-        <h4 class="text-warning fw-bold mb-2" id="loadingTitle">جاري التحقق من نطاق المركز الصحي...</h4>
-        <p class="text-muted small" id="loadingSubtitle">يرجى السماح بخدمة الموقع (GPS) للتأكد من تواجدك داخل النطاق التشغيلي</p>
+        <h4 class="text-warning fw-bold mb-2" id="loadingTitle">جاري تحديد موقعك عبر الـ GPS...</h4>
+        <p class="text-muted small" id="loadingSubtitle">يرجى السماح بخدمة الموقع لعرض بيانات المركز الصحي القريب منك</p>
         
-        <!-- صندوق رسالة الخطأ مع زر تفعيل مباشر -->
+        <!-- صندوق رسالة الخطأ في حال رفض الإذن أو تجاوز النطاق الواسع -->
         <div id="gpsErrorBox" style="display: none; max-width: 450px; width: 100%;" class="mt-3">
             <div id="errorMsgContainer" class="alert-error">
-                ⚠️ يرجى السماح بتفعيل صلاحية الموقع (GPS) للتحقق من تواجدك بالقرب من المركز.
+                ⚠️ يرجى السماح بتفعيل صلاحية الموقع (GPS) للتحقق من تواجدك في نطاق المراكز الصحية.
             </div>
+            
             <button class="btn btn-warning fw-bold w-100 py-3 text-dark shadow" onclick="requestLocationPermission()">
-                📍 السماح بالوصول للموقع الآن 
+                📍 إعادة محاولة تحديد الموقع
             </button>
         </div>
     </div>
@@ -79,7 +80,7 @@
         </button>
         
         <button class="btn btn-outline-info btn-custom text-white border-info" onclick="window.location.reload()">
-            🔄 التحقق مرة أخرى
+            🔄 إعادة فحص الموقع
         </button>
     </div>
 
@@ -163,7 +164,7 @@
         let currentActiveCenter = null;
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3; // الأمتار
+            const R = 6371e3;
             const φ1 = lat1 * Math.PI/180;
             const φ2 = lat2 * Math.PI/180;
             const Δφ = (lat2-lat1) * Math.PI/180;
@@ -179,7 +180,7 @@
 
         function requestLocationPermission() {
             document.getElementById('loadingSpinner').style.display = 'block';
-            document.getElementById('loadingTitle').innerText = "جاري التحقق من نطاق المركز الصحي...";
+            document.getElementById('loadingTitle').innerText = "جاري تحديد موقعك عبر الـ GPS...";
             document.getElementById('gpsErrorBox').style.display = 'none';
             initLocationCheck();
         }
@@ -197,16 +198,16 @@
                     checkGeofence(userLat, userLng);
                 },
                 (error) => {
-                    showGpsError("⚠️ تم رفض صلاحية الموقع أو أن خدمة الـ GPS مغلقة. يرجى الضغط على الزر أدناه للسماح للموقع بالعمل.");
+                    showGpsError("⚠️ تعذر قراءة موقعك بدقة. يرجى التأكد من تفعيل صلاحية الموقع (GPS) في المتصفح وإعادة المحاولة.");
                 },
-                { timeout: 15000, enableHighAccuracy: true, maximumAge: 0 }
+                { timeout: 20000, enableHighAccuracy: true, maximumAge: 0 }
             );
         }
 
         function checkGeofence(userLat, userLng) {
             let closest = null;
             let minDistance = Infinity;
-            const maxRadiusMeters = 300; // **تم تحديث النطاق ليصبح 300 متر لكل المراكز**
+            const maxRadiusMeters = 1500; // نطاق مرن وآمن يمنع تعليق الـ GPS (1.5 كيلومتر)
 
             healthCenters.forEach(center => {
                 let dist = calculateDistance(userLat, userLng, center.lat, center.lng);
@@ -216,11 +217,11 @@
                 }
             });
 
-            // التحقق مما إذا كان أقرب مركز يقع ضمن نطاق 300 متر
+            // إذا كان أقرب مركز يقع ضمن نطاق 1.5 كم، يتم فتحه فوراً وبكل سلاسة
             if (closest && minDistance <= maxRadiusMeters) {
                 displayCenterInfo(closest);
             } else {
-                showGpsError(`⚠️ عذراً، أنت تبعد مسافة (${Math.round(minDistance)} متر) عن أقرب مركز (${closest ? closest.name : ''}). يجب أن تكون داخل نطاق 300 متر من المركز.`);
+                showGpsError(`⚠️ يبدو أنك تبعد مسافة كبيرة عن النطاق التشغيلي لأي مركز صحي مسجل.`);
             }
         }
 
@@ -236,13 +237,13 @@
 
         function showGpsError(customMessage) {
             document.getElementById('loadingSpinner').style.display = 'none';
-            document.getElementById('loadingTitle').innerText = "تنبيه النطاق الجغرافي";
+            document.getElementById('loadingTitle').innerText = "تنبيه الموقع الجغرافي";
             document.getElementById('loadingSubtitle').style.display = 'none';
             
             const errorBox = document.getElementById('gpsErrorBox');
             const errorMsgContainer = document.getElementById('errorMsgContainer');
             
-            errorMsgContainer.innerText = customMessage;
+            errorMsgContainer.innerHTML = customMessage;
             errorBox.style.display = 'block';
         }
 
