@@ -10,61 +10,52 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: #0b0f19; color: white; font-family: 'Cairo', sans-serif; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 20px; }
         
-        .main-card { background: #151c2c; border: 2px solid #2a344d; border-radius: 20px; padding: 30px; text-align: center; max-width: 550px; width: 100%; box-shadow: 0 15px 35px rgba(0,0,0,0.6); margin-top: auto; margin-bottom: auto; }
-        .cluster-logo { height: 90px; width: auto; object-fit: contain; margin-bottom: 20px; }
+        .main-card { background: #151c2c; border: 2px solid #2a344d; border-radius: 20px; padding: 25px; text-align: center; max-width: 550px; width: 100%; box-shadow: 0 15px 35px rgba(0,0,0,0.6); margin-top: auto; margin-bottom: auto; }
+        .cluster-logo { height: 80px; width: auto; object-fit: contain; margin-bottom: 15px; }
         
-        .info-box { background: #111827; border: 1px solid #1f2937; border-radius: 15px; padding: 20px; margin-top: 20px; text-align: right; }
-        .info-item { margin-bottom: 12px; font-size: 1.05rem; }
+        .info-box { background: #111827; border: 1px solid #1f2937; border-radius: 15px; padding: 18px; margin-top: 15px; text-align: right; }
+        .info-item { margin-bottom: 10px; font-size: 1rem; }
         .info-label { color: #38bdf8; font-weight: bold; }
         .info-value { color: #f3f4f6; }
 
-        .btn-custom { font-size: 1.1rem; padding: 12px; width: 100%; border-radius: 12px; font-weight: bold; margin-top: 15px; transition: 0.3s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; border: none; }
+        .btn-custom { font-size: 1.05rem; padding: 12px; width: 100%; border-radius: 12px; font-weight: bold; margin-top: 12px; transition: 0.3s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; border: none; }
         
         .btn-sehati { background-color: #0d9488; color: white; }
         .btn-sehati:hover { background-color: #0f766e; color: white; }
 
+        .form-select { background-color: #111827 !important; color: white !important; border: 1px solid #374151 !important; padding: 10px; border-radius: 10px; font-size: 0.95rem; font-family: 'Cairo', sans-serif; }
+        .form-select option { background-color: #151c2c; color: white; }
+
         #loadingScreen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; background: #0b0f19; z-index: 9999; text-align: center; padding: 20px; }
         .spinner-border { width: 3rem; height: 3rem; color: #ffc107; margin-bottom: 20px; }
-        
-        .alert-error { background: #451a03; border: 1px solid #b45309; color: #fde68a; padding: 15px; border-radius: 15px; margin-bottom: 15px; font-size: 0.95rem; text-align: center; line-height: 1.6; }
     </style>
 </head>
 <body>
 
-    <!-- شاشة التحميل وتحديد الموقع -->
+    <!-- شاشة التحميل السريعة للـ GPS -->
     <div id="loadingScreen">
-        <div class="spinner-border" role="status" id="loadingSpinner"></div>
-        <h4 class="text-warning fw-bold mb-2" id="loadingTitle">جاري تحديد موقعك عبر الـ GPS...</h4>
-        <p class="text-muted small" id="loadingSubtitle">يرجى السماح بخدمة الموقع لعرض بيانات مركزك الصحي بدقة</p>
-        
-        <!-- صندوق الخيارات في حال احتاج المراجع لتأكيد مركزه يدوياً -->
-        <div id="gpsErrorBox" style="display: none; max-width: 450px; width: 100%;" class="mt-3">
-            <div id="errorMsgContainer" class="alert-error">
-                ⚠️ تعذر تحديد موقعك بدقة بالـ GPS. يرجى اختيار مركزك الصحي من القائمة أدناه:
-            </div>
-            
-            <div class="card bg-dark border-secondary p-3 text-right rounded-3 mb-3">
-                <label class="form-label text-info small fw-bold mb-2">🏥 اختر مركزك الصحي:</label>
-                <select id="manualCenterSelect" class="form-select bg-black text-white border-secondary mb-2" style="font-family: 'Cairo';">
-                    <option value="">-- اضغط لاختيار المركز الصحي --</option>
-                </select>
-                <button class="btn btn-warning btn-sm w-100 fw-bold text-dark py-2" onclick="selectCenterManually()">
-                    تأكيد والدخول للنظام ➔
-                </button>
-            </div>
-
-            <button class="btn btn-outline-light btn-sm w-100" onclick="requestLocationPermission()">
-                📍 إعادة محاولة الـ GPS
-            </button>
-        </div>
+        <div class="spinner-border" role="status"></div>
+        <h4 class="text-warning fw-bold mb-2">جاري تحديد مركزك الصحي عبر الـ GPS...</h4>
+        <p class="text-muted small">يرجى الانتظار لحظات أو اختيار المركز يدوياً من القائمة أدناه إن أردت</p>
     </div>
 
-    <!-- واجهة البيانات للمركز المحدد -->
+    <!-- واجهة البيانات للمركز (مع صندوق تغيير المركز الدائم) -->
     <div class="main-card" id="appContent" style="display: none;">
         <img src="https://github.com/blu2ris-create/clinic-queue-system/blob/main/logo.png%20(2).png?raw=true" alt="شعار التجمع الصحي" class="cluster-logo">
         
         <h3 id="clinicNameTitle" class="text-warning fw-bold mb-1">--</h3>
-        <p class="text-muted small mb-4">تجمع الأحساء الصحي - الرعاية الصحية الأولية</p>
+        <p class="text-muted small mb-3">تجمع الأحساء الصحي - الرعاية الصحية الأولية</p>
+
+        <!-- صندوق تغيير وتحديد المركز يدوياً في أي وقت -->
+        <div class="bg-dark border border-secondary p-3 rounded-3 text-right mb-3 shadow-sm">
+            <label class="form-label text-info small fw-bold mb-1">🔄 تغيير المركز الصحي يدوياً:</label>
+            <div class="input-group">
+                <select id="manualCenterSelect" class="form-select">
+                    <option value="">-- اختر مركزاً آخر من القائمة --</option>
+                </select>
+                <button class="btn btn-warning fw-bold text-dark px-3" onclick="changeCenterManually()">تحديث</button>
+            </div>
+        </div>
 
         <div class="info-box">
             <div class="info-item">
@@ -76,7 +67,7 @@
                 <span id="clinicHours" class="info-value">--</span>
             </div>
             <div class="info-item">
-                <span class="info-label">📞 الهاتف / التواصل:</span>
+                <span class="info-label">📞 التواصل:</span>
                 <span id="clinicPhone" class="info-value">0135000000</span>
             </div>
         </div>
@@ -87,10 +78,6 @@
 
         <button class="btn btn-warning btn-custom text-dark" onclick="openGoogleMaps()">
             📍 الاتجاهات عبر خرائط جوجل
-        </button>
-        
-        <button class="btn btn-outline-info btn-custom text-white border-info" onclick="resetAndReselect()">
-            🔄 تغيير المركز / إعادة الفحص
         </button>
     </div>
 
@@ -167,7 +154,8 @@
             { name: "مركز صحي البطالية", sector: "النطاق الشرقي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.4300, lng: 49.6050 }
         ];
 
-        // تعبئة القائمة اليدوية للمراكز أبجدياً
+        let currentActiveCenter = null;
+
         window.addEventListener('DOMContentLoaded', () => {
             const selectDropdown = document.getElementById('manualCenterSelect');
             healthCenters.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
@@ -179,20 +167,15 @@
                 selectDropdown.appendChild(opt);
             });
 
-            // التحقق إذا كان المستخدم قد اختار مركزه مسبقاً في هذا الجوال
+            // التحقق هل تم اختيار مركز سابقاً ومحفوظ في الجهاز
             const savedCenterIdx = localStorage.getItem('selected_health_center_idx');
             if (savedCenterIdx !== null && healthCenters[savedCenterIdx]) {
-                displayCenterInfo(healthCenters[savedCenterIdx]);
+                displayCenterInfo(healthCenters[savedCenterIdx], savedCenterIdx);
             } else {
-                setTimeout(initLocationCheck, 500);
+                // محاولة التحديد التلقائي بالـ GPS أولاً
+                initLocationCheck();
             }
         });
-
-        healthCenters.forEach(c => {
-            c.mapsUrl = `https://maps.google.com/?q=${c.lat},${c.lng}`;
-        });
-
-        let currentActiveCenter = null;
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371e3;
@@ -200,25 +183,14 @@
             const φ2 = lat2 * Math.PI/180;
             const Δφ = (lat2-lat1) * Math.PI/180;
             const Δλ = (lon2-lon1) * Math.PI/180;
-
-            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-                      Math.cos(φ1) * Math.cos(φ2) *
-                      Math.sin(Δλ/2) * Math.sin(Δλ/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-            return R * c; 
-        }
-
-        function requestLocationPermission() {
-            document.getElementById('loadingSpinner').style.display = 'block';
-            document.getElementById('loadingTitle').innerText = "جاري تحديد موقعك بدقة...";
-            document.getElementById('gpsErrorBox').style.display = 'none';
-            initLocationCheck();
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
         }
 
         function initLocationCheck() {
             if (!navigator.geolocation) {
-                showGpsError();
+                // في حال عدم دعم الـ GPS، يتم اختيار أول مركز افتراضياً مع إظهار الصفحة
+                selectDefaultFallback();
                 return;
             }
 
@@ -226,74 +198,65 @@
                 (position) => {
                     const userLat = position.coords.latitude;
                     const userLng = position.coords.longitude;
-                    findClosestCenter(userLat, userLng);
+                    
+                    let closestCenter = null;
+                    let minDistance = Infinity;
+                    let closestIdx = 0;
+
+                    healthCenters.forEach((center, index) => {
+                        let dist = calculateDistance(userLat, userLng, center.lat, center.lng);
+                        if (dist < minDistance) {
+                            minDistance = dist;
+                            closestCenter = center;
+                            closestIdx = index;
+                        }
+                    });
+
+                    // حفظ واختيار الأقرب تلقائياً
+                    localStorage.setItem('selected_health_center_idx', closestIdx);
+                    displayCenterInfo(closestCenter, closestIdx);
                 },
                 (error) => {
-                    showGpsError();
+                    // في حال رفض إذن الموقع أو فشله، يتم اختيار أول مركز افتراضياً
+                    selectDefaultFallback();
                 },
-                { timeout: 15000, enableHighAccuracy: true, maximumAge: 0 }
+                { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 }
             );
         }
 
-        function findClosestCenter(userLat, userLng) {
-            let closestCenter = null;
-            let minDistance = Infinity;
-            const maxAllowedRadius = 4000; // نطاق 4 كم للتأكد من التقاط المركز الصحي
-
-            healthCenters.forEach(center => {
-                let dist = calculateDistance(userLat, userLng, center.lat, center.lng);
-                if (dist < minDistance) {
-                    minDistance = dist;
-                    closestCenter = center;
-                }
-            });
-
-            // إذا وجد أقرب مركز ضمن النطاق، يتم حفظه وعرضه مباشرة
-            if (closestCenter && minDistance <= maxAllowedRadius) {
-                const centerIndex = healthCenters.findIndex(c => c.name === closestCenter.name);
-                localStorage.setItem('selected_health_center_idx', centerIndex);
-                displayCenterInfo(closestCenter);
-            } else {
-                showGpsError();
-            }
+        function selectDefaultFallback() {
+            const defaultIdx = 0;
+            localStorage.setItem('selected_health_center_idx', defaultIdx);
+            displayCenterInfo(healthCenters[defaultIdx], defaultIdx);
         }
 
-        function displayCenterInfo(center) {
+        function displayCenterInfo(center, index) {
             currentActiveCenter = center;
+            currentActiveCenter.mapsUrl = `https://maps.google.com/?q=${center.lat},${center.lng}`;
+            
             document.getElementById('clinicNameTitle').innerText = center.name;
             document.getElementById('clinicSector').innerText = center.sector;
             document.getElementById('clinicHours').innerText = center.hours;
+            
+            // ضبط القائمة المنسدلة لتشير للمركز الحالي
+            document.getElementById('manualCenterSelect').value = index;
 
             document.getElementById('loadingScreen').style.display = 'none';
             document.getElementById('appContent').style.display = 'block';
         }
 
-        function showGpsError() {
-            document.getElementById('loadingSpinner').style.display = 'none';
-            document.getElementById('loadingTitle').innerText = "اختر مركزك الصحي";
-            document.getElementById('loadingSubtitle').style.display = 'none';
-            document.getElementById('gpsErrorBox').style.display = 'block';
-        }
-
-        // اختيار المركز يدوياً وحفظه في الجوال نهائياً
-        function selectCenterManually() {
+        // تغيير المركز يدوياً في أي وقت من القائمة داخل الصفحة
+        function changeCenterManually() {
             const selectDropdown = document.getElementById('manualCenterSelect');
             const selectedIndex = selectDropdown.value;
             
             if (selectedIndex === "") {
-                alert("الرجاء اختيار المركز الصحي من القائمة أولاً.");
+                alert("الرجاء اختيار مركز صحي من القائمة أولاً.");
                 return;
             }
             
             localStorage.setItem('selected_health_center_idx', selectedIndex);
-            const chosenCenter = healthCenters[selectedIndex];
-            displayCenterInfo(chosenCenter);
-        }
-
-        // زر لتغيير المركز في حال أراد الموظف تجربته من مركز آخر
-        function resetAndReselect() {
-            localStorage.removeItem('selected_health_center_idx');
-            window.location.reload();
+            displayCenterInfo(healthCenters[selectedIndex], selectedIndex);
         }
 
         function openGoogleMaps() {
