@@ -207,7 +207,7 @@
         function checkGeofence(userLat, userLng) {
             let closest = null;
             let minDistance = Infinity;
-            const maxRadiusMeters = 1500; // نطاق مرن وآمن يمنع تعليق الـ GPS (1.5 كيلومتر)
+            const maxRadiusMeters = 500; // نطاق مرن وآمن يمنع تعليق الـ GPS (500 متر)
 
             healthCenters.forEach(center => {
                 let dist = calculateDistance(userLat, userLng, center.lat, center.lng);
@@ -217,7 +217,7 @@
                 }
             });
 
-            // إذا كان أقرب مركز يقع ضمن نطاق 1.5 كم، يتم فتحه فوراً وبكل سلاسة
+            // إذا كان أقرب مركز يقع ضمن نطاق 500 متر، يتم فتحه فوراً وبكل سلاسة
             if (closest && minDistance <= maxRadiusMeters) {
                 displayCenterInfo(closest);
             } else {
