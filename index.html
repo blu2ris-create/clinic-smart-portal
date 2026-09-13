@@ -34,17 +34,17 @@
     <!-- شاشة التحميل وتحديد الموقع -->
     <div id="loadingScreen">
         <div class="spinner-border" role="status" id="loadingSpinner"></div>
-        <h4 class="text-warning fw-bold mb-2" id="loadingTitle">جاري تحديد موقعك عبر الـ GPS...</h4>
-        <p class="text-muted small" id="loadingSubtitle">يرجى السماح بخدمة الموقع لعرض بيانات المركز الصحي القريب منك</p>
+        <h4 class="text-warning fw-bold mb-2" id="loadingTitle">جاري مطابقة موقعك بأقرب مركز صحي بدقة...</h4>
+        <p class="text-muted small" id="loadingSubtitle">يرجى السماح بخدمة الموقع لعرض بيانات المركز الصحي الخاص بك</p>
         
-        <!-- صندوق رسالة الخطأ في حال رفض الإذن أو تجاوز النطاق الواسع -->
+        <!-- صندوق رسالة الخطأ -->
         <div id="gpsErrorBox" style="display: none; max-width: 450px; width: 100%;" class="mt-3">
             <div id="errorMsgContainer" class="alert-error">
-                ⚠️ يرجى السماح بتفعيل صلاحية الموقع (GPS) للتحقق من تواجدك في نطاق المراكز الصحية.
+                ⚠️ تعذر تحديد موقعك بدقة. يرجى تفعيل الـ GPS ومحاولة التحديث.
             </div>
             
             <button class="btn btn-warning fw-bold w-100 py-3 text-dark shadow" onclick="requestLocationPermission()">
-                📍 إعادة محاولة تحديد الموقع
+                📍 إعادة المحاولة
             </button>
         </div>
     </div>
@@ -180,7 +180,7 @@
 
         function requestLocationPermission() {
             document.getElementById('loadingSpinner').style.display = 'block';
-            document.getElementById('loadingTitle').innerText = "جاري تحديد موقعك عبر الـ GPS...";
+            document.getElementById('loadingTitle').innerText = "جاري مطابقة موقعك بأقرب مركز صحي بدقة...";
             document.getElementById('gpsErrorBox').style.display = 'none';
             initLocationCheck();
         }
@@ -195,33 +195,34 @@
                 (position) => {
                     const userLat = position.coords.latitude;
                     const userLng = position.coords.longitude;
-                    checkGeofence(userLat, userLng);
+                    findClosestCenter(userLat, userLng);
                 },
                 (error) => {
-                    showGpsError("⚠️ تعذر قراءة موقعك بدقة. يرجى التأكد من تفعيل صلاحية الموقع (GPS) في المتصفح وإعادة المحاولة.");
+                    showGpsError("⚠️ تعذر قراءة موقعك. يرجى التأكد من تفعيل صلاحية الموقع (GPS) والسماح للمتصفح بالوصول إليه.");
                 },
                 { timeout: 20000, enableHighAccuracy: true, maximumAge: 0 }
             );
         }
 
-        function checkGeofence(userLat, userLng) {
-            let closest = null;
+        // المعادلة البرمجية الصحيحة والمضبوطة لاختيار أقرب مركز بدقة مئوية
+        function findClosestCenter(userLat, userLng) {
+            let closestCenter = null;
             let minDistance = Infinity;
-            const maxRadiusMeters = 500; // نطاق مرن وآمن يمنع تعليق الـ GPS (500 متر)
+            const maxAllowedRadius = 3000; // نطاق أمان بحد أقصى 3 كيلومترات لأقرب مركز
 
             healthCenters.forEach(center => {
                 let dist = calculateDistance(userLat, userLng, center.lat, center.lng);
                 if (dist < minDistance) {
                     minDistance = dist;
-                    closest = center;
+                    closestCenter = center;
                 }
             });
 
-            // إذا كان أقرب مركز يقع ضمن نطاق 500 متر، يتم فتحه فوراً وبكل سلاسة
-            if (closest && minDistance <= maxRadiusMeters) {
-                displayCenterInfo(closest);
+            // التحقق من أن المركز الأقرب يقع ضمن النطاق المقبول
+            if (closestCenter && minDistance <= maxAllowedRadius) {
+                displayCenterInfo(closestCenter);
             } else {
-                showGpsError(`⚠️ يبدو أنك تبعد مسافة كبيرة عن النطاق التشغيلي لأي مركز صحي مسجل.`);
+                showGpsError(`⚠️ يبدو أنك خارج النطاق التشغيلي لأي مركز صحي مسجل.`);
             }
         }
 
