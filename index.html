@@ -23,6 +23,15 @@
         .btn-sehati { background-color: #0d9488; color: white; }
         .btn-sehati:hover { background-color: #0f766e; color: white; }
 
+        .store-btns-container { display: flex; gap: 8px; margin-top: 10px; }
+        .store-btn { flex: 1; font-size: 0.85rem; padding: 8px 5px; border-radius: 8px; font-weight: bold; text-decoration: none; text-align: center; color: white; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px; border: 1px solid rgba(255,255,255,0.1); }
+        .store-apple { background-color: #111827; }
+        .store-apple:hover { background-color: #1f2937; color: #38bdf8; }
+        .store-google { background-color: #111827; }
+        .store-google:hover { background-color: #1f2937; color: #34d399; }
+        .store-huawei { background-color: #111827; }
+        .store-huawei:hover { background-color: #1f2937; color: #fbbf24; }
+
         #selectionScreen { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 500px; margin: auto; text-align: center; padding: 20px; }
         .form-select { background-color: #111827 !important; color: white !important; border: 1px solid #374151 !important; padding: 12px; border-radius: 10px; font-size: 1rem; }
         .form-select option { background-color: #151c2c; color: white; }
@@ -55,7 +64,7 @@
         <h3 id="clinicNameTitle" class="text-warning fw-bold mb-1">--</h3>
         <p class="text-muted small mb-3">تجمع الأحساء الصحي - الرعاية الصحية الأولية</p>
 
-        <!-- صندوق تغيير المركز (بتصميم منسق: القائمة فوق، وزر التحديث تحتها) -->
+        <!-- صندوق تغيير المركز -->
         <div class="card bg-dark border-secondary p-3 text-right rounded-3 mb-3 shadow-sm">
             <label class="form-label text-info small fw-bold mb-2">🔄 تغيير المركز الصحي:</label>
             <select id="changeCenterSelect" class="form-select w-100 mb-2">
@@ -67,7 +76,7 @@
         </div>
 
         <div class="info-box">
-            <div class="info-item">
+            <div class="info-item" style="display: none;">
                 <span class="info-label">🏥 النطاق:</span>
                 <span id="clinicSector" class="info-value">--</span>
             </div>
@@ -85,6 +94,19 @@
             📅 حجز موعد عبر تطبيق صحتي
         </a>
 
+        <!-- روابط المتاجر الرسمية لتطبيق صحتي -->
+        <div class="store-btns-container">
+            <a href="https://apps.apple.com/sa/app/%D8%B5%D8%AD%D8%AA%D9%8A-sehhaty/id1459266578" target="_blank" class="store-btn store-apple">
+                🍏 آب ستور
+            </a>
+            <a href="https://play.google.com/store/apps/details?id=com.lean.sehhaty" target="_blank" class="store-btn store-google">
+                ▶ قوقل بلاي
+            </a>
+            <a href="https://appgallery.cloud.huawei.com/ag/n/app/C102530755?locale=ar_SA&source=appshare&subsource=C102530755&shareTo=com.whatsapp&shareFrom=appmarket&shareIds=8fa5a3eb388b44ac9379c6782cd0aa0b_com.whatsapp&callType=SHARE" target="_blank" class="store-btn store-huawei">
+                🛍 هواوي
+            </a>
+        </div>
+
         <button class="btn btn-warning btn-custom text-dark" onclick="openGoogleMaps()">
             📍 الاتجاهات عبر خرائط جوجل
         </button>
@@ -96,71 +118,67 @@
 
     <script>
         const healthCenters = [
-            // النطاق الجنوبي
-            { name: "مركز صحي الخالدية", sector: "النطاق الجنوبي", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3200, lng: 49.5700 },
-            { name: "مركز صحي المعلمين", sector: "النطاق الجنوبي", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3400, lng: 49.5900 },
-            { name: "مركز صحي السلمانية", sector: "النطاق الجنوبي", hours: "الأحد - الخميس: 08:00 ص - 06:00 م (أسنان: 4م-11م)", lat: 25.3300, lng: 49.5800 },
-            { name: "مركز صحي البندرية", sector: "النطاق الجنوبي", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3500, lng: 49.6000 },
-            { name: "مركز صحي الثليثية", sector: "النطاق الجنوبي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3000, lng: 49.5500 },
-            { name: "مركز صحي الرقيقة", sector: "النطاق الجنوبي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3600, lng: 49.5500 },
-            { name: "مركز صحي العزيزية", sector: "النطاق الجنوبي", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3100, lng: 49.5600 },
-            { name: "مركز صحي الزايدية", sector: "النطاق الجنوبي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.2200, lng: 49.4200 },
-            { name: "مركز صحي الغويبة", sector: "النطاق الجنوبي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.2000, lng: 49.4000 },
-            { name: "مركز صحي شجعة", sector: "النطاق الجنوبي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.2800, lng: 49.5300 },
-            { name: "مركز صحي حرض", sector: "النطاق الجنوبي", hours: "24 ساعة (طوال أيام الأسبوع)", lat: 24.1400, lng: 49.0600 },
-            { name: "مركز صحي فضيلة", sector: "النطاق الجنوبي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.2400, lng: 49.4600 },
-            { name: "مركز صحي الدهو", sector: "النطاق الجنوبي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.2600, lng: 49.5000 },
-            { name: "مركز صحي يبرين", sector: "النطاق الجنوبي", hours: "24 ساعة (طوال أيام الأسبوع)", lat: 24.0000, lng: 48.0000 },
-            { name: "مركز صحي الحفاير", sector: "النطاق الجنوبي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 24.5000, lng: 48.8000 },
+            { name: "مركز صحي الخالدية", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3200, lng: 49.5700 },
+            { name: "مركز صحي المعلمين", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3400, lng: 49.5900 },
+            { name: "مركز صحي السلمانية", hours: "الأحد - الخميس: 08:00 ص - 06:00 م (أسنان: 4م-11م)", lat: 25.3300, lng: 49.5800 },
+            { name: "مركز صحي البندرية", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3500, lng: 49.6000 },
+            { name: "مركز صحي الثليثية", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3000, lng: 49.5500 },
+            { name: "مركز صحي الرقيقة", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3600, lng: 49.5500 },
+            { name: "مركز صحي العزيزية", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3100, lng: 49.5600 },
+            { name: "مركز صحي الزايدية", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.2200, lng: 49.4200 },
+            { name: "مركز صحي الغويبة", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.2000, lng: 49.4000 },
+            { name: "مركز صحي شجعة", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.2800, lng: 49.5300 },
+            { name: "مركز صحي حرض", hours: "24 ساعة (طوال أيام الأسبوع)", lat: 24.1400, lng: 49.0600 },
+            { name: "مركز صحي فضيلة", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.2400, lng: 49.4600 },
+            { name: "مركز صحي الدهو", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.2600, lng: 49.5000 },
+            { name: "مركز صحي يبرين", hours: "24 ساعة (طوال أيام الأسبوع)", lat: 24.0000, lng: 48.0000 },
+            { name: "مركز صحي الحفاير", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 24.5000, lng: 48.8000 },
 
-            // النطاق الأوسط
-            { name: "مركز صحي الجعفري", sector: "النطاق الأوسط", hours: "الأحد - الخميس: 08:00 ص - 11:00 م (الجمعة: أسنان 4م-11م)", lat: 25.3750, lng: 49.5950 },
-            { name: "مركز صحي الصالحية", sector: "النطاق الأوسط", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3851, lng: 49.5822 },
-            { name: "مركز صحي حي الملك فهد", sector: "النطاق الأوسط", hours: "الأحد - الخميس: 08:00 ص - 06:00 م (أسنان: 4م-11م)", lat: 25.3700, lng: 49.6000 },
-            { name: "مركز صحي الفاضلية", sector: "النطاق الأوسط", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3850, lng: 49.5820 },
-            { name: "مركز صحي الفيصلية", sector: "النطاق الأوسط", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3950, lng: 49.5600 },
-            { name: "مركز صحي اليحيى", sector: "النطاق الأوسط", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3800, lng: 49.5900 },
-            { name: "مركز صحي حزم المبرز", sector: "النطاق الأوسط", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.4000, lng: 49.5750 },
-            { name: "مركز صحي المزروع", sector: "النطاق الأوسط", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3900, lng: 49.5850 },
-            { name: "مركز صحي مريطبة", sector: "النطاق الأوسط", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.2500, lng: 49.4800 },
-            { name: "مركز صحي السيح", sector: "النطاق الأوسط", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3650, lng: 49.6050 },
+            { name: "مركز صحي الجعفري", hours: "الأحد - الخميس: 08:00 ص - 11:00 م (الجمعة: أسنان 4م-11م)", lat: 25.3750, lng: 49.5950 },
+            { name: "مركز صحي الصالحية", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3851, lng: 49.5822 },
+            { name: "مركز صحي حي الملك فهد", hours: "الأحد - الخميس: 08:00 ص - 06:00 م (أسنان: 4م-11م)", lat: 25.3700, lng: 49.6000 },
+            { name: "مركز صحي الفاضلية", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3850, lng: 49.5820 },
+            { name: "مركز صحي الفيصلية", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3950, lng: 49.5600 },
+            { name: "مركز صحي اليحيى", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3800, lng: 49.5900 },
+            { name: "مركز صحي حزم المبرز", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.4000, lng: 49.5750 },
+            { name: "مركز صحي المزروع", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3900, lng: 49.5850 },
+            { name: "مركز صحي مريطبة", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.2500, lng: 49.4800 },
+            { name: "مركز صحي السيح", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3650, lng: 49.6050 },
 
-            // النطاق الشمالي
-            { name: "مركز صحي الفيصل", sector: "النطاق الشمالي", hours: "الأحد - الخميس: 08:00 ص - 11:00 م (الجمعة: لا يوجد)", lat: 25.4100, lng: 49.5900 },
-            { name: "مركز صحي محاسن", sector: "النطاق الشمالي", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.4250, lng: 49.5650 },
-            { name: "مركز صحي الراشدية", sector: "النطاق الشمالي", hours: "الأحد - الخميس: 08:00 ص - 06:00 م (أسنان: 4م-12م)", lat: 25.4400, lng: 49.5750 },
-            { name: "مركز صحي النزهة", sector: "النطاق الشمالي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.4200, lng: 49.5800 },
-            { name: "مركز شعبة المبرز", sector: "النطاق الشمالي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.4150, lng: 49.5750 },
-            { name: "مركز صحي العفالق", sector: "النطاق الشمالي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م (الجمعة: لا يوجد)", lat: 25.4350, lng: 49.5800 },
-            { name: "مركز صحي المطيرفي", sector: "النطاق الشمالي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.4500, lng: 49.6300 },
-            { name: "مركز صحي الشعبة", sector: "النطاق الشمالي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.4300, lng: 49.5900 },
-            { name: "مركز صحي القرين", sector: "النطاق الشمالي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.5800, lng: 49.5900 },
-            { name: "مركز صحي العيون", sector: "النطاق الشمالي", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.6531, lng: 49.5915 },
-            { name: "مركز صحي المراح", sector: "النطاق الشمالي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.5200, lng: 49.6000 },
-            { name: "مركز صحي الجرن", sector: "النطاق الشمالي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.6000, lng: 49.5850 },
-            { name: "مركز صحي الوزية", sector: "النطاق الشمالي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.5500, lng: 49.5700 },
-            { name: "مركز صحي جليجلة", sector: "النطاق الشمالي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.5000, lng: 49.6200 },
-            { name: "مركز صحي نورة الموسى", sector: "النطاق الشمالي", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.4150, lng: 49.5650 },
-            { name: "مركز صحي الشقيق", sector: "النطاق الشمالي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.4800, lng: 49.6100 },
-            { name: "مركز سارا الراشد", sector: "النطاق الشمالي", hours: "الأحد - الخميس: 08:00 ص - 12:00 م (أسنان فقط)", lat: 25.4200, lng: 49.5700 },
+            { name: "مركز صحي الفيصل", hours: "الأحد - الخميس: 08:00 ص - 11:00 م (الجمعة: لا يوجد)", lat: 25.4100, lng: 49.5900 },
+            { name: "مركز صحي محاسن", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.4250, lng: 49.5650 },
+            { name: "مركز صحي الراشدية", hours: "الأحد - الخميس: 08:00 ص - 06:00 م (أسنان: 4م-12م)", lat: 25.4400, lng: 49.5750 },
+            { name: "مركز صحي النزهة", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.4200, lng: 49.5800 },
+            { name: "مركز شعبة المبرز", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.4150, lng: 49.5750 },
+            { name: "مركز صحي العفالق", hours: "الأحد - الخميس: 08:00 ص - 04:00 م (الجمعة: لا يوجد)", lat: 25.4350, lng: 49.5800 },
+            { name: "مركز صحي المطيرفي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.4500, lng: 49.6300 },
+            { name: "مركز صحي الشعبة", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.4300, lng: 49.5900 },
+            { name: "مركز صحي القرين", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.5800, lng: 49.5900 },
+            { name: "مركز صحي العيون", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.6531, lng: 49.5915 },
+            { name: "مركز صحي المراح", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.5200, lng: 49.6000 },
+            { name: "مركز صحي الجرن", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.6000, lng: 49.5850 },
+            { name: "مركز صحي الوزية", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.5500, lng: 49.5700 },
+            { name: "مركز صحي جليجلة", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.5000, lng: 49.6200 },
+            { name: "مركز صحي نورة الموسى", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.4150, lng: 49.5650 },
+            { name: "مركز صحي الشقيق", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.4800, lng: 49.6100 },
+            { name: "مركز سارا الراشد", hours: "الأحد - الخميس: 08:00 ص - 12:00 م (أسنان فقط)", lat: 25.4200, lng: 49.5700 },
 
-            // النطاق الشرقي
-            { name: "مركز صحي إسكان الكلابية", sector: "النطاق الشرقي", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.4500, lng: 49.6500 },
-            { name: "مركز صحي العمران", sector: "النطاق الشرقي", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3582, lng: 49.7214 },
-            { name: "مركز صحي المركز", sector: "النطاق الشرقي", hours: "الأحد - الخميس: 08:00 ص - 06:00 م (أسنان: 4م-11م)", lat: 25.3400, lng: 49.7200 },
-            { name: "مركز صحي الجشة", sector: "النطاق الشرقي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3500, lng: 49.7300 },
-            { name: "مركز صحي الجفر", sector: "النطاق الشرقي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3500, lng: 49.7700 },
-            { name: "مركز صحي الطرف", sector: "النطاق الشرقي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3350, lng: 49.7450 },
-            { name: "مركز صحي الفضول", sector: "النطاق الشرقي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3900, lng: 49.6600 },
-            { name: "مركز صحي المنيزلة", sector: "النطاق الشرقي", hours: "الأحد - الخميس: 08:00 ص - 11:00 م (الجمعة: أسنان 4م-11م)", lat: 25.3450, lng: 49.7100 },
-            { name: "مركز صحي المنصورة", sector: "النطاق الشرقي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3600, lng: 49.6900 },
-            { name: "مركز صحي الدالوة", sector: "النطاق الشرقي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3700, lng: 49.6850 },
-            { name: "مركز صحي القارة", sector: "النطاق الشرقي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.4050, lng: 49.6750 },
-            { name: "مركز صحي الثويثير", sector: "النطاق الشرقي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3200, lng: 49.7400 },
-            { name: "مركز صحي الحليلة", sector: "النطاق الشرقي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3800, lng: 49.6800 },
-            { name: "مركز صحي الكلابية", sector: "النطاق الشرقي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.4450, lng: 49.6600 },
-            { name: "مركز صحي الجبيل", sector: "النطاق الشرقي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3300, lng: 49.7550 },
-            { name: "مركز صحي البطالية", sector: "النطاق الشرقي", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.4300, lng: 49.6050 }
+            { name: "مركز صحي إسكان الكلابية", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.4500, lng: 49.6500 },
+            { name: "مركز صحي العمران", hours: "الأحد - الخميس: 08:00 ص - 11:00 م", lat: 25.3582, lng: 49.7214 },
+            { name: "مركز صحي المركز", hours: "الأحد - الخميس: 08:00 ص - 06:00 م (أسنان: 4م-11م)", lat: 25.3400, lng: 49.7200 },
+            { name: "مركز صحي الجشة", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3500, lng: 49.7300 },
+            { name: "مركز صحي الجفر", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3500, lng: 49.7700 },
+            { name: "مركز صحي الطرف", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3350, lng: 49.7450 },
+            { name: "مركز صحي الفضول", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3900, lng: 49.6600 },
+            { name: "مركز صحي المنيزلة", hours: "الأحد - الخميس: 08:00 ص - 11:00 م (الجمعة: أسنان 4م-11م)", lat: 25.3450, lng: 49.7100 },
+            { name: "مركز صحي المنصورة", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3600, lng: 49.6900 },
+            { name: "مركز صحي الدالوة", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3700, lng: 49.6850 },
+            { name: "مركز صحي القارة", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.4050, lng: 49.6750 },
+            { name: "مركز صحي الثويثير", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3200, lng: 49.7400 },
+            { name: "مركز صحي الحليلة", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3800, lng: 49.6800 },
+            { name: "مركز صحي الكلابية", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.4450, lng: 49.6600 },
+            { name: "مركز صحي الجبيل", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.3300, lng: 49.7550 },
+            { name: "مركز صحي البطالية", hours: "الأحد - الخميس: 08:00 ص - 04:00 م", lat: 25.4300, lng: 49.6050 }
         ];
 
         let currentActiveCenter = null;
@@ -169,22 +187,20 @@
             const selectDropdown = document.getElementById('manualCenterSelect');
             const changeDropdown = document.getElementById('changeCenterSelect');
             
-            // ترتيب المراكز أبجدياً
             healthCenters.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
             
             healthCenters.forEach((center, index) => {
                 let opt1 = document.createElement('option');
                 opt1.value = index;
-                opt1.textContent = `${center.name} (${center.sector})`;
+                opt1.textContent = center.name;
                 selectDropdown.appendChild(opt1);
 
                 let opt2 = document.createElement('option');
                 opt2.value = index;
-                opt2.textContent = `${center.name} (${center.sector})`;
+                opt2.textContent = center.name;
                 changeDropdown.appendChild(opt2);
             });
 
-            // التحقق من وجود مركز مخزن مسبقاً
             const savedCenterIdx = localStorage.getItem('selected_health_center_idx');
             if (savedCenterIdx !== null && healthCenters[savedCenterIdx]) {
                 displayCenterInfo(healthCenters[savedCenterIdx]);
@@ -225,10 +241,8 @@
             currentActiveCenter.mapsUrl = `https://maps.google.com/?q=${center.lat},${center.lng}`;
             
             document.getElementById('clinicNameTitle').innerText = center.name;
-            document.getElementById('clinicSector').innerText = center.sector;
             document.getElementById('clinicHours').innerText = center.hours;
 
-            // تحديد المركز الحالي في قائمة التغيير أيضاً ليظهر للمستخدم
             const centerIndex = healthCenters.findIndex(c => c.name === center.name);
             if(centerIndex !== -1) {
                 document.getElementById('changeCenterSelect').value = centerIndex;
