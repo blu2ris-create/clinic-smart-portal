@@ -81,10 +81,10 @@
             </div>
         </div>
 
-        <!-- زر حجز موعد المربوط برابط منصة صحتي الموحد -->
-        <a href="https://sehaty.sa" target="_blank" class="btn btn-sehati btn-custom">
+        <!-- زر حجز موعد الموجه لفتح التطبيق تلقائياً حسب نوع الجهاز -->
+        <button class="btn btn-sehati btn-custom" onclick="openSehhatyApp()">
             📅 حجز موعد عبر تطبيق صحتي
-        </a>
+        </button>
 
         <!-- زر خرائط جوجل -->
         <button class="btn btn-warning btn-custom text-dark" onclick="openGoogleMaps()">
@@ -230,6 +230,29 @@
 
             document.getElementById('selectionScreen').style.display = 'none';
             document.getElementById('appContent').style.display = 'block';
+        }
+
+        function openSehhatyApp() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+            // روابط متاجر وتطبيق صحتي الرسمية الموحدة
+            const iosAppStoreUrl = "https://apps.apple.com/sa/app/%D8%B5%D8%AD%D8%AA%D9%8A-sehhaty/id1459266578";
+            const androidPlayStoreUrl = "https://play.google.com/store/apps/details?id=com.lean.sehhaty";
+            const webFallbackUrl = "https://sehaty.sa";
+
+            if (/android/i.test(userAgent)) {
+                // للأندرويد: محاولة فتح حزمة التطبيق مباشرة، وإن لم يتوفر يتحول للمتجر
+                window.location.href = "intent://sehhaty.sa/#Intent;scheme=https;package=com.lean.sehhaty;end;";
+                setTimeout(() => {
+                    window.location.href = androidPlayStoreUrl;
+                }, 500);
+            } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                // للآيفون: التحويل لرابط المتجر المباشر الذي يفتح التطبيق إن وجد أو متجر التطبيقات
+                window.location.href = iosAppStoreUrl;
+            } else {
+                // لأجهزة الكمبيوتر أو غيرها
+                window.open(webFallbackUrl, '_blank');
+            }
         }
 
         function openGoogleMaps() {
